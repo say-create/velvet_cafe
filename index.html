@@ -98,14 +98,47 @@ background:rgba(0,0,0,0.5);display:none;z-index:40;}
 <button onclick="closeModal()" class="text-red-400 mt-2">Cerrar</button>
 </div>
 </div>
+<!-- ADMIN -->
+<button onclick="showAdmin()" class="fixed top-5 right-5 bg-pink-400 px-3 py-1 rounded text-white">⚙️</button>
 
+<div id="admin" class="hidden fixed inset-0 bg-white p-4 overflow-y-auto text-black">
+<h2 class="text-xl font-bold">Panel Admin</h2>
+
+<input id="pass" type="password" placeholder="Contraseña" class="border mt-2 p-2 w-full">
+<button onclick="login()" class="bg-pink-400 text-white w-full mt-2 p-2">Entrar</button>
+
+<div id="panel" class="hidden mt-4">
+
+<input id="nombre" placeholder="Nombre" class="border p-2 w-full mt-2">
+<input id="precio" placeholder="Precio" class="border p-2 w-full mt-2">
+<input id="desc" placeholder="Descripción" class="border p-2 w-full mt-2">
+
+<select id="categoria" class="border p-2 w-full mt-2">
+<option value="crepas">🥞 Crepas</option>
+<option value="bebidas">☕ Bebidas</option>
+<option value="postres">🍰 Postres</option>
+</select>
+
+<!-- EXTRAS -->
+<input id="extraNombre" placeholder="Extra" class="border p-2 w-full mt-2">
+<input id="extraPrecio" placeholder="Precio extra" class="border p-2 w-full mt-2">
+<button onclick="addExtra()" class="bg-gray-300 w-full mt-2 p-2">Agregar extra</button>
+<div id="listaExtras"></div>
+
+<button onclick="addProduct()" class="bg-green-400 w-full mt-2 p-2 text-white">Agregar producto</button>
+<button onclick="closeAdmin()" class="bg-red-400 w-full mt-2 p-2 text-white">Salir</button>
+
+<div id="adminList" class="mt-4"></div>
+</div>
+</div> 
+  
 <script>
 
 let products=[
 
 {cat:"crepas",name:"🍓 Crepa Amor Fresa",price:85,
 desc:"Crepa suave con fresas frescas y crema dulce… puro romance 💕",
-img:"https://images.unsplash.com/photo-1587731431928-2a1a1c6a4c8b",
+img:"https://images.unsplash.com/photo-1519671482749-fd09be7ccebf",
 extras:[{name:"Lechera",price:10},{name:"Nutella",price:15}],active:true},
 
 {cat:"crepas",name:"🍫 Crepa Tentación Nutella",price:95,
@@ -125,12 +158,12 @@ extras:[{name:"Crema batida",price:10}],active:true},
 
 {cat:"postres",name:"🧇 Waffle Dulce Tentación",price:90,
 desc:"Waffle dorado con miel, frutas y azúcar glass 😍",
-img:"https://images.unsplash.com/photo-1562376552-0d160a2f238d",
+img:"https://images.unsplash.com/photo-1506086679525-9c5c2b3f0f3f",
 extras:[{name:"Chocolate",price:15}],active:true},
 
 {cat:"postres",name:"🥞 Mini Hotcakes Love",price:70,
 desc:"Mini hotcakes esponjosos con miel y mantequilla 🧈",
-img:"https://images.unsplash.com/photo-1587731431928-2a1a1c6a4c8b",
+img:"https://images.unsplash.com/photo-1565299624946-b28f40a0ae38",
 extras:[{name:"Fresas",price:10}],active:true}
 
 ];
@@ -244,7 +277,68 @@ window.open("https://wa.me/5215550572742?text="+msg);
 installBtn.onclick=()=>{
 alert("📲 Agrégame a tu pantalla de inicio\nCompartir → Agregar a pantalla de inicio");
 };
+function showAdmin(){admin.classList.remove("hidden");}
+function closeAdmin(){admin.classList.add("hidden");}
 
+function login(){
+if(pass.value==="1234"){
+panel.classList.remove("hidden");
+renderAdmin();
+}
+}
+
+function renderAdmin(){
+let html="";
+products.forEach((p,i)=>{
+html+=`
+<div style="margin-bottom:10px;border-bottom:1px solid gray;padding:5px;">
+<strong>${p.name}</strong>
+
+<div style="margin-top:5px;display:flex;gap:5px;">
+<button onclick="deleteP(${i})">❌</button>
+
+<button onclick="toggleP(${i})"
+style="background:${p.active?'green':'gray'};color:white;padding:3px 8px;border-radius:20px;">
+${p.active?'ON':'OFF'}
+</button>
+
+<button onclick="editP(${i})"
+style="background:orange;color:white;padding:3px 8px;border-radius:5px;">
+✏️
+</button>
+</div>
+</div>`;
+});
+adminList.innerHTML=html;
+}
+
+function deleteP(i){products.splice(i,1);renderAdmin();renderProducts();}
+function toggleP(i){products[i].active=!products[i].active;renderAdmin();renderProducts();}
+
+function editP(i){
+nombre.value=products[i].name;
+precio.value=products[i].price;
+desc.value=products[i].desc;
+extrasTemp=products[i].extras||[];
+renderExtras();
+}
+
+function addProduct(){
+products.push({
+cat:document.getElementById("categoria").value,
+name:nombre.value,
+price:parseInt(precio.value),
+desc:desc.value,
+img:"https://images.unsplash.com/photo-1504754524776-8f4f37790ca0",
+extras:extrasTemp,
+active:true
+});
+
+extrasTemp=[];
+renderExtras();
+renderProducts();
+renderAdmin();
+}
 </script>
 
 </body>
