@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Velvet Café ☕</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{margin:0;font-family:sans-serif}
+.video-bg{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-2;}
+.fallback{position:fixed;top:0;left:0;width:100%;height:100%;
+background:url('https://images.unsplash.com/photo-1504754524776-8f4f37790ca0') center/cover;z-index:-3;}
+.glass{background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);color:black;}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.5);display:none;z-index:40;}
+</style>
+</head>
+
+<body class="text-black">
+
+<button id="installBtn" class="fixed bottom-20 left-4 bg-pink-400 px-3 py-2 rounded-full z-50">📲</button>
+
+<div class="fallback"></div>
+
+<video autoplay muted loop playsinline class="video-bg">
+<source src="https://cdn.coverr.co/videos/coverr-making-coffee-5176/1080p.mp4">
+</video>
+
+<!-- HOME -->
+<div id="home" class="h-screen flex flex-col justify-center items-center glass">
+<h1 class="text-5xl font-bold mb-4">☕ Velvet Café</h1>
+<p class="text-lg">Momentos dulces, sabores inolvidables ✨</p>
+<button onclick="enterMenu()" class="bg-pink-400 px-6 py-3 rounded text-white mt-4">Ver menú</button>
+</div>
+
+<!-- MENU -->
+<div id="menu" class="hidden">
+
+<div class="glass p-4 text-center">
+<h1 class="text-2xl">Menú ✨</h1>
+<p>⭐ 4.9 • Cafetería artesanal</p>
+</div>
+
+<!-- CATEGORÍAS -->
+<div class="flex gap-2 p-3 overflow-x-auto glass">
+<button onclick="renderProducts('all')" class="bg-pink-400 px-3 py-1 rounded-full text-white">Todo</button>
+<button onclick="renderProducts('crepas')" class="bg-gray-200 px-3 py-1 rounded-full">🥞</button>
+<button onclick="renderProducts('bebidas')" class="bg-gray-200 px-3 py-1 rounded-full">☕</button>
+<button onclick="renderProducts('postres')" class="bg-gray-200 px-3 py-1 rounded-full">🍰</button>
+<button onclick="renderProducts('extras')" class="bg-gray-200 px-3 py-1 rounded-full">🍓</button>
+</div>
+
+<div id="products" class="p-4 grid gap-4"></div>
+
+<!-- CARRITO -->
+<div class="fixed bottom-5 right-5 z-50">
+<button onclick="openCart()" class="bg-pink-400 p-4 rounded-full text-white">
+🛒 <span id="count">0</span>
+</button>
+</div>
+
+<div id="overlay" class="overlay" onclick="closeCart()"></div>
+
+<div id="cartPanel" class="fixed bottom-0 left-0 right-0 bg-white p-4 hidden z-50 text-black">
+<div class="flex justify-between">
+<h2>Tu pedido</h2>
+<button onclick="closeCart()">✖</button>
+</div>
+
+<div id="cartItems"></div>
+<p id="total"></p>
+
+<button onclick="getLocation()" class="bg-blue-400 w-full mt-2 text-white">Ubicación 📍</button>
+
+<input id="direccion" placeholder="Dirección" class="w-full border mt-2">
+<input id="cambio" placeholder="¿Con cuánto pagarás?" class="w-full border mt-2">
+
+<select id="metodoPago" class="w-full border mt-2">
+<option>Efectivo</option>
+<option>Transferencia</option>
+</select>
+
+<button onclick="sendWhatsApp()" class="bg-green-400 w-full mt-2 text-white">Enviar pedido</button>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center">
+<div class="bg-white p-4 rounded w-11/12 text-black">
+<h2 id="modalName"></h2>
+<p id="modalDesc"></p>
+<div id="extras"></div>
+
+<button onclick="confirmAdd()" class="bg-pink-400 w-full mt-2 text-white">Agregar</button>
+<button onclick="closeModal()" class="text-red-400 mt-2">Cerrar</button>
+</div>
+</div>
+
+<script>
+
+let products=[
+
+{cat:"crepas",name:"🍓 Crepa Amor Fresa",price:85,
+desc:"Crepa suave con fresas frescas y crema dulce… puro romance 💕",
+img:"https://images.unsplash.com/photo-1587731431928-2a1a1c6a4c8b",
+extras:[{name:"Lechera",price:10},{name:"Nutella",price:15}],active:true},
+
+{cat:"crepas",name:"🍫 Crepa Tentación Nutella",price:95,
+desc:"Explosión cremosa de Nutella con plátano caramelizado 🤤",
+img:"https://images.unsplash.com/photo-1604908176997-431b6e2d8d9b",
+extras:[{name:"Fresas",price:15}],active:true},
+
+{cat:"bebidas",name:"☕ Capuccino Velvet",price:60,
+desc:"Espuma cremosa con café intenso y toque de vainilla ✨",
+img:"https://images.unsplash.com/photo-1509042239860-f550ce710b93",
+extras:[{name:"Shot extra",price:15}],active:true},
+
+{cat:"bebidas",name:"🧋 Frappé Caramelo Crush",price:75,
+desc:"Frappé helado con caramelo dulce irresistible 🧊",
+img:"https://images.unsplash.com/photo-1586190848861-99aa4a171e90",
+extras:[{name:"Crema batida",price:10}],active:true},
+
+{cat:"postres",name:"🧇 Waffle Dulce Tentación",price:90,
+desc:"Waffle dorado con miel, frutas y azúcar glass 😍",
+img:"https://images.unsplash.com/photo-1562376552-0d160a2f238d",
+extras:[{name:"Chocolate",price:15}],active:true},
+
+{cat:"postres",name:"🥞 Mini Hotcakes Love",price:70,
+desc:"Mini hotcakes esponjosos con miel y mantequilla 🧈",
+img:"https://images.unsplash.com/photo-1587731431928-2a1a1c6a4c8b",
+extras:[{name:"Fresas",price:10}],active:true}
+
+];
+
+let cart=[];
+let selectedProduct=null;
+let ubicacion="";
+
+// MENU
+function enterMenu(){
+home.style.display="none";
+menu.classList.remove("hidden");
+renderProducts();
+}
+
+// RENDER
+function renderProducts(cat="all"){
+let html="";
+products.forEach((p,i)=>{
+if((cat==="all"||p.cat===cat)&&p.active){
+html+=`
+<div class="glass p-3 rounded shadow">
+<img src="${p.img}" class="w-full h-32 object-cover rounded">
+<h3 class="font-bold">${p.name}</h3>
+<p>${p.desc}</p>
+<p class="text-pink-500 font-bold">$${p.price}</p>
+
+<button onclick="openModal(${i})"
+class="bg-pink-400 w-10 h-10 flex items-center justify-center rounded text-white text-xl mt-2">+</button>
+
+</div>`;
+}
+});
+products.innerHTML=html;
+}
+
+// MODAL
+function openModal(i){
+selectedProduct=products[i];
+modal.classList.remove("hidden");
+modalName.innerText=selectedProduct.name;
+modalDesc.innerText=selectedProduct.desc;
+
+let html="";
+selectedProduct.extras.forEach(e=>{
+html+=`<label><input type="checkbox" data-price="${e.price}"> ${e.name} +$${e.price}</label><br>`;
+});
+extras.innerHTML=html;
+}
+
+function closeModal(){modal.classList.add("hidden");}
+
+// AGREGAR
+function confirmAdd(){
+let total=selectedProduct.price;
+document.querySelectorAll("#extras input").forEach(e=>{
+if(e.checked) total+=parseInt(e.dataset.price);
+});
+cart.push({name:selectedProduct.name,price:total});
+updateCart();
+closeModal();
+}
+
+// CARRITO
+function updateCart(){
+let html="",total=0;
+cart.forEach((p,i)=>{
+html+=`${p.name} $${p.price} <button onclick="removeItem(${i})">❌</button><br>`;
+total+=p.price;
+});
+cartItems.innerHTML=html;
+document.getElementById("total").innerText="Total: $"+total;
+document.getElementById("count").innerText=cart.length;
+}
+
+function removeItem(i){cart.splice(i,1);updateCart();}
+function openCart(){cartPanel.classList.remove("hidden");overlay.style.display="block";}
+function closeCart(){cartPanel.classList.add("hidden");overlay.style.display="none";}
+
+// GEO
+function getLocation(){
+navigator.geolocation.getCurrentPosition(pos=>{
+ubicacion=`https://maps.google.com?q=${pos.coords.latitude},${pos.coords.longitude}`;
+});
+}
+
+// WHATS
+function sendWhatsApp(){
+let msg="Pedido:%0A";
+let total=0;
+
+cart.forEach(p=>{
+msg+=`${p.name} $${p.price}%0A`;
+total+=p.price;
+});
+
+let pago=parseFloat(document.getElementById("cambio").value)||0;
+let cambioFinal=pago-total;
+
+msg+=`Total: $${total}%0A`;
+msg+=`Pagará con: $${pago}%0A`;
+msg+=`Cambio: $${cambioFinal}%0A`;
+msg+=`Método: ${metodoPago.value}%0A`;
+msg+=`Ubicación: ${ubicacion}%0A`;
+msg+=`Dirección: ${direccion.value}`;
+
+window.open("https://wa.me/5215550572742?text="+msg);
+}
+
+// INSTALL
+installBtn.onclick=()=>{
+alert("📲 Agrégame a tu pantalla de inicio\nCompartir → Agregar a pantalla de inicio");
+};
+
+</script>
+
+</body>
+</html>
