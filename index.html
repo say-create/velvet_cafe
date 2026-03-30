@@ -173,7 +173,47 @@ let cart=[];
 let selectedProduct=null;
 let ubicacion="";
 let extrasTemp = [];
+// EXTRAS PANEL
+function addExtra(){
 
+let nombre = document.getElementById("extraNombre").value.trim();
+let precio = parseFloat(document.getElementById("extraPrecio").value);
+
+if(!nombre || isNaN(precio)){
+alert("Completa bien el extra");
+return;
+}
+
+extrasTemp.push({
+name:nombre,
+price:precio
+});
+
+document.getElementById("extraNombre").value="";
+document.getElementById("extraPrecio").value="";
+
+renderExtras();
+}
+
+function renderExtras(){
+let html="";
+
+extrasTemp.forEach((e,i)=>{
+html+=`
+<div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+<span>${e.name} +$${e.price}</span>
+<button onclick="deleteExtra(${i})">❌</button>
+</div>
+`;
+});
+
+document.getElementById("listaExtras").innerHTML = html;
+}
+
+function deleteExtra(i){
+extrasTemp.splice(i,1);
+renderExtras();
+}
 // MENU
 function enterMenu(){
 home.style.display="none";
