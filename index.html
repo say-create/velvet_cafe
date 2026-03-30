@@ -112,6 +112,7 @@ background:rgba(0,0,0,0.5);display:none;z-index:40;}
 <input id="nombre" placeholder="Nombre" class="border p-2 w-full mt-2">
 <input id="precio" placeholder="Precio" class="border p-2 w-full mt-2">
 <input id="desc" placeholder="Descripción" class="border p-2 w-full mt-2">
+<input id="imagen" placeholder="URL de imagen" class="border p-2 w-full mt-2">
 
 <select id="categoria" class="border p-2 w-full mt-2">
 <option value="crepas">🥞 Crepas</option>
@@ -138,32 +139,32 @@ let products=[
 
 {cat:"crepas",name:"🍓 Crepa Amor Fresa",price:85,
 desc:"Crepa suave con fresas frescas y crema dulce… puro romance 💕",
-img:"https://share.google/images/N5lMs5IokKxW2tTeO",
+img:"https://images.unsplash.com/photo-1551024601-bec78aea704b",
 extras:[{name:"Lechera",price:10},{name:"Nutella",price:15}],active:true},
 
 {cat:"crepas",name:"🍫 Crepa Tentación Nutella",price:95,
 desc:"Explosión cremosa de Nutella con plátano caramelizado 🤤",
-img:"https://share.google/images/rz8SL7YnbEEPPYVtQ",
+img:"https://images.unsplash.com/photo-1519671482749-fd09be7ccebf",
 extras:[{name:"Fresas",price:15}],active:true},
 
 {cat:"bebidas",name:"☕ Capuccino Velvet",price:60,
 desc:"Espuma cremosa con café intenso y toque de vainilla ✨",
-img:"https://share.google/images/rT9VAz284ndPxO4S1",
+img:"https://images.unsplash.com/photo-1509042239860-f550ce710b93",
 extras:[{name:"Shot extra",price:15}],active:true},
 
 {cat:"bebidas",name:"🧋 Frappé Caramelo Crush",price:75,
 desc:"Frappé helado con caramelo dulce irresistible 🧊",
-img:"https://share.google/images/tK0klD2xyr7m2Mtcu",
+img:"https://images.unsplash.com/photo-1586190848861-99aa4a171e90",
 extras:[{name:"Crema batida",price:10}],active:true},
 
 {cat:"postres",name:"🧇 Waffle Dulce Tentación",price:90,
 desc:"Waffle dorado con miel, frutas y azúcar glass 😍",
-img:"https://share.google/images/10NO1Axr60MyLkfcZ",
+img:"https://images.unsplash.com/photo-1506086679525-9c5c2b3f0f3f",
 extras:[{name:"Chocolate",price:15}],active:true},
 
 {cat:"postres",name:"🥞 Mini Hotcakes Love",price:70,
 desc:"Mini hotcakes esponjosos con fresas, chocolate y bombones 🧈",
-img:"https://share.google/images/kaAtNqNOxkAMHcZYW",
+img:"https://images.unsplash.com/photo-1565299624946-b28f40a0ae38",
 extras:[{name:"Fresas",price:10}],active:true}
 
 ];
@@ -319,6 +320,7 @@ function editP(i){
 nombre.value=products[i].name;
 precio.value=products[i].price;
 desc.value=products[i].desc;
+imagen.value = products[i].img;
 extrasTemp=products[i].extras||[];
 renderExtras();
 }
@@ -329,7 +331,7 @@ cat:document.getElementById("categoria").value,
 name:nombre.value,
 price:parseInt(precio.value),
 desc:desc.value,
-img:"https://images.unsplash.com/photo-1504754524776-8f4f37790ca0",
+img: document.getElementById("imagen").value || "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0",
 extras:extrasTemp,
 active:true
 });
